@@ -6,11 +6,14 @@ import write from './write';
 import getValuesFromState from './getValuesFromState';
 import initializeState from './initializeState';
 import resetState from './resetState';
+import setErrors from './setErrors';
+
+export const globalErrorKey = '_error';
 
 export const initialState = {
   _active: undefined,
   _asyncValidating: false,
-  _error: undefined,
+  [globalErrorKey]: undefined,
   _submitting: false,
   _submitFailed: false
 };
@@ -20,7 +23,7 @@ const behaviors = {
     const array = read(path, state);
     const stateCopy = {...state};
     const arrayCopy = array ? [...array] : [];
-    const newValue = {value};
+    const newValue = value !== null && typeof value === 'object' ? initializeState(value, Object.keys(value)) : {value};
     if (index === undefined) {
       arrayCopy.push(newValue);
     } else {
@@ -59,12 +62,12 @@ const behaviors = {
     stateCopy._active = field;
     return stateCopy;
   },
-  [INITIALIZE](state, {data}) {
+  [INITIALIZE](state, {data, fields}) {
     return {
-      ...initializeState(data),
+      ...initializeState(data, fields, state),
       _asyncValidating: false,
       _active: undefined,
-      _error: undefined,
+      [globalErrorKey]: undefined,
       _submitting: false,
       _submitFailed: false
     };
@@ -87,7 +90,7 @@ const behaviors = {
       ...resetState(state),
       _active: undefined,
       _asyncValidating: false,
-      _error: undefined,
+      [globalErrorKey]: undefined,
       _submitting: false,
       _submitFailed: false
     };
@@ -106,25 +109,15 @@ const behaviors = {
   },
   [STOP_ASYNC_VALIDATION](state, {errors}) {
     return {
-      ...mapValues(state, value =>
-        value && value.asyncError ? {...value, asyncError: undefined} : value
-      ),
-      ...mapValues(errors, (error, key) => ({
-        ...state[key],
-        asyncError: error
-      })),
+      ...setErrors(state, errors, 'asyncError'),
       _asyncValidating: false,
-      _error: errors && errors._error
+      [globalErrorKey]: errors && errors[globalErrorKey]
     };
   },
   [STOP_SUBMIT](state, {errors}) {
     return {
-      ...state,
-      ...(errors ? mapValues(errors, (error, key) => ({
-        ...state[key],
-        submitError: error
-      })) : {}),
-      _error: errors && errors._error,
+      ...setErrors(state, errors, 'submitError'),
+      [globalErrorKey]: errors && errors[globalErrorKey],
       _submitting: false,
       _submitFailed: !!(errors && Object.keys(errors).length)
     };
@@ -220,7 +213,8 @@ function decorate(target) {
         ...result,
         ...mapValues(normalizers, (formNormalizers, form) => {
           const runNormalize = (previous, currentResult) => {
-            const previousValues = getValuesFromState({...initialState, ...previous
+            const previousValues = getValuesFromState({
+              ...initialState, ...previous
             });
             const formResult = {
               ...initialState,
@@ -231,10 +225,10 @@ function decorate(target) {
               ...mapValues(formNormalizers, (fieldNormalizer, field) => ({
                 ...formResult[field],
                 value: fieldNormalizer(
-                    formResult[field] ? formResult[field].value : undefined,         // value
-                    previous && previous[field] ? previous[field].value : undefined, // previous value
-                    getValuesFromState(formResult),                                           // all field values
-                    previousValues)                                                  // all previous field values
+                  formResult[field] ? formResult[field].value : undefined,         // value
+                  previous && previous[field] ? previous[field].value : undefined, // previous value
+                  getValuesFromState(formResult),                                           // all field values
+                  previousValues)                                                  // all previous field values
               }))
             };
           };

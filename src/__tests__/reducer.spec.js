@@ -1,5 +1,5 @@
 import expect from 'expect';
-import reducer from '../reducer';
+import reducer, {globalErrorKey} from '../reducer';
 import bindActionData from '../bindActionData';
 import {addArrayValue, blur, change, focus, initialize, removeArrayValue, reset, startAsyncValidation, startSubmit,
   stopAsyncValidation, stopSubmit, touch, untouch, destroy} from '../actions';
@@ -30,7 +30,7 @@ describe('reducer', () => {
       .toEqual({
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -50,7 +50,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -72,13 +72,13 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
   });
 
-  it('should add a deep array value with empty state', () => {
+  it('should add a deep array value with initial value', () => {
     const state = reducer({}, {
       ...addArrayValue('myField.myArray', 20, undefined),
       form: 'foo'
@@ -94,7 +94,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -113,7 +113,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -136,7 +136,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -155,7 +155,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -178,6 +178,332 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      });
+  });
+
+  // TODO: Find a way to make this pass:
+  /*
+  it('should push an array value which is a deep object', () => {
+    const state = reducer({
+      testForm: {
+        friends: [
+          {
+            name: {
+              initial: 'name-1',
+              value: 'name-1'
+            },
+            address: {
+              street: {
+                initial: 'street-1',
+                value: 'street-1'
+              },
+              postalCode: {
+                initial: 'postalCode-1',
+                value: 'postalCode-1'
+              }
+            }
+          },
+          {
+            name: {
+              initial: 'name-2',
+              value: 'name-2'
+            },
+            address: {
+              street: {
+                initial: 'street-2',
+                value: 'street-2'
+              },
+              postalCode: {
+                initial: 'postalCode-2',
+                value: 'postalCode-2'
+              }
+            }
+          }
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        _error: undefined,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...addArrayValue('friends', {
+        name: 'name-3',
+        address: {
+          street: 'street-3',
+          postalCode: 'postalCode-3'
+        }
+      }, undefined),
+      form: 'testForm'
+    });
+    expect(state.testForm)
+      .toEqual({
+        friends: [
+          {
+            name: {
+              initial: 'name-1',
+              value: 'name-1'
+            },
+            address: {
+              street: {
+                initial: 'street-1',
+                value: 'street-1'
+              },
+              postalCode: {
+                initial: 'postalCode-1',
+                value: 'postalCode-1'
+              }
+            }
+          },
+          {
+            name: {
+              initial: 'name-2',
+              value: 'name-2'
+            },
+            address: {
+              street: {
+                initial: 'street-2',
+                value: 'street-2'
+              },
+              postalCode: {
+                initial: 'postalCode-2',
+                value: 'postalCode-2'
+              }
+            }
+          },
+          {
+            name: {
+              initial: 'name-3',
+              value: 'name-3'
+            },
+            address: {
+              street: {
+                initial: 'street-3',
+                value: 'street-3'
+              },
+              postalCode: {
+                initial: 'postalCode-3',
+                value: 'postalCode-3'
+              }
+            }
+          }
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        _error: undefined,
+        _submitting: false,
+        _submitFailed: false
+      });
+  });
+  */
+
+  it('should push a deep array value which is a nested object', () => {
+    const state = reducer({
+      testForm: {
+        myField: [
+          {
+            foo: {
+              initial: {a: 'foo-a1', b: 'foo-b1'},
+              value: {a: 'foo-a1', b: 'foo-b1'},
+            },
+            bar: {
+              initial: {a: 'bar-a1', b: 'bar-b1'},
+              value: {a: 'bar-a1', b: 'bar-b1'},
+            }
+          },
+          {
+            foo: {
+              initial: {a: 'foo-a2', b: 'foo-b2'},
+              value: {a: 'foo-a2', b: 'foo-b2'},
+            },
+            bar: {
+              initial: {a: 'bar-a2', b: 'bar-b2'},
+              value: {a: 'bar-a2', b: 'bar-b2'},
+            }
+          },
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        _error: undefined,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...addArrayValue('myField', {foo: {a: 'foo-a3', b: 'foo-b3'}, bar: {a: 'bar-a3', b: 'bar-b3'}}, undefined),
+      form: 'testForm'
+    });
+    expect(state.testForm)
+      .toEqual({
+        myField: [
+          {
+            foo: {
+              initial: {a: 'foo-a1', b: 'foo-b1'},
+              value: {a: 'foo-a1', b: 'foo-b1'},
+            },
+            bar: {
+              initial: {a: 'bar-a1', b: 'bar-b1'},
+              value: {a: 'bar-a1', b: 'bar-b1'},
+            }
+          },
+          {
+            foo: {
+              initial: {a: 'foo-a2', b: 'foo-b2'},
+              value: {a: 'foo-a2', b: 'foo-b2'},
+            },
+            bar: {
+              initial: {a: 'bar-a2', b: 'bar-b2'},
+              value: {a: 'bar-a2', b: 'bar-b2'},
+            }
+          },
+          {
+            foo: {
+              initial: {a: 'foo-a3', b: 'foo-b3'},
+              value: {a: 'foo-a3', b: 'foo-b3'},
+            },
+            bar: {
+              initial: {a: 'bar-a3', b: 'bar-b3'},
+              value: {a: 'bar-a3', b: 'bar-b3'},
+            }
+          },
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        _error: undefined,
+        _submitting: false,
+        _submitFailed: false
+      });
+  });
+
+  it('should push a subarray value which is an object', () => {
+    const state = reducer({
+      testForm: {
+        myField: [
+          {
+            myField2: [
+              {
+                foo: {
+                  initial: 'foo-1-1',
+                  value: 'foo-1-1'
+                },
+                bar: {
+                  initial: 'bar-1-1',
+                  value: 'bar-1-1'
+                }
+              },
+              {
+                foo: {
+                  initial: 'foo-1-2',
+                  value: 'foo-1-2'
+                },
+                bar: {
+                  initial: 'bar-1-2',
+                  value: 'bar-1-2'
+                }
+              },
+            ],
+          },
+          {
+            myField2: [
+              {
+                foo: {
+                  initial: 'foo-2-1',
+                  value: 'foo-2-1'
+                },
+                bar: {
+                  initial: 'bar-2-1',
+                  value: 'bar-2-1'
+                }
+              },
+              {
+                foo: {
+                  initial: 'foo-2-2',
+                  value: 'foo-2-2'
+                },
+                bar: {
+                  initial: 'bar-2-2',
+                  value: 'bar-2-2'
+                }
+              },
+            ],
+          },
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        _error: undefined,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...addArrayValue('myField[1].myField2', {foo: 'foo-2-3', bar: 'bar-2-3'}, undefined),
+      form: 'testForm'
+    });
+    expect(state.testForm)
+      .toEqual({
+        myField: [
+          {
+            myField2: [
+              {
+                foo: {
+                  initial: 'foo-1-1',
+                  value: 'foo-1-1'
+                },
+                bar: {
+                  initial: 'bar-1-1',
+                  value: 'bar-1-1'
+                }
+              },
+              {
+                foo: {
+                  initial: 'foo-1-2',
+                  value: 'foo-1-2'
+                },
+                bar: {
+                  initial: 'bar-1-2',
+                  value: 'bar-1-2'
+                }
+              },
+            ],
+          },
+          {
+            myField2: [
+              {
+                foo: {
+                  initial: 'foo-2-1',
+                  value: 'foo-2-1'
+                },
+                bar: {
+                  initial: 'bar-2-1',
+                  value: 'bar-2-1'
+                }
+              },
+              {
+                foo: {
+                  initial: 'foo-2-2',
+                  value: 'foo-2-2'
+                },
+                bar: {
+                  initial: 'bar-2-2',
+                  value: 'bar-2-2'
+                }
+              },
+              {
+                foo: {
+                  initial: 'foo-2-3',
+                  value: 'foo-2-3'
+                },
+                bar: {
+                  initial: 'bar-2-3',
+                  value: 'bar-2-3'
+                }
+              },
+            ],
+          },
+        ],
+        _active: undefined,
+        _asyncValidating: false,
         _error: undefined,
         _submitting: false,
         _submitFailed: false
@@ -195,7 +521,7 @@ describe('reducer', () => {
           value: 'myValue'
         },
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -214,7 +540,7 @@ describe('reducer', () => {
           touched: true
         },
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -229,7 +555,7 @@ describe('reducer', () => {
           touched: false
         },
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -246,7 +572,7 @@ describe('reducer', () => {
           touched: true
         },
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -262,7 +588,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -279,7 +605,7 @@ describe('reducer', () => {
           touched: true
         },
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -293,7 +619,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -309,7 +635,7 @@ describe('reducer', () => {
           touched: true
         },
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -325,7 +651,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -343,7 +669,7 @@ describe('reducer', () => {
           }
         },
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -357,7 +683,7 @@ describe('reducer', () => {
         ],
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -375,7 +701,7 @@ describe('reducer', () => {
           }
         ],
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -393,7 +719,7 @@ describe('reducer', () => {
         },
         _active: undefined, // CHANGE doesn't touch _active
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -413,7 +739,7 @@ describe('reducer', () => {
         },
         _active: undefined, // CHANGE doesn't touch _active
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -429,7 +755,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: 'Some global error',
+        [globalErrorKey]: 'Some global error',
         _submitting: false,
         _submitFailed: false
       }
@@ -447,7 +773,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: 'Some global error',
+        [globalErrorKey]: 'Some global error',
         _submitting: false,
         _submitFailed: false
       });
@@ -463,7 +789,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: 'Some global error',
+        [globalErrorKey]: 'Some global error',
         _submitting: false,
         _submitFailed: false
       }
@@ -478,7 +804,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: 'Some global error',
+        [globalErrorKey]: 'Some global error',
         _submitting: false,
         _submitFailed: false
       });
@@ -498,7 +824,7 @@ describe('reducer', () => {
         },
         _active: undefined, // CHANGE doesn't touch _active
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -516,7 +842,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -536,7 +862,7 @@ describe('reducer', () => {
         },
         _active: 'myField.subField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -552,7 +878,7 @@ describe('reducer', () => {
         },
         _active: 'otherField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -569,7 +895,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -577,7 +903,7 @@ describe('reducer', () => {
 
   it('should set initialize values on initialize on empty state', () => {
     const state = reducer({}, {
-      ...initialize({myField: 'initialValue'}),
+      ...initialize({myField: 'initialValue'}, ['myField']),
       form: 'foo'
     });
     expect(state.foo)
@@ -588,7 +914,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -596,7 +922,7 @@ describe('reducer', () => {
 
   it('should allow initializing null values', () => {
     const state = reducer({}, {
-      ...initialize({bar: 'baz', dog: null}),
+      ...initialize({bar: 'baz', dog: null}, ['bar', 'dog']),
       form: 'foo'
     });
     expect(state.foo)
@@ -611,7 +937,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -619,7 +945,7 @@ describe('reducer', () => {
 
   it('should initialize nested values on initialize on empty state', () => {
     const state = reducer({}, {
-      ...initialize({myField: {subField: 'initialValue'}}),
+      ...initialize({myField: {subField: 'initialValue'}}, ['myField.subField'], {}),
       form: 'foo'
     });
     expect(state.foo)
@@ -632,7 +958,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -640,7 +966,7 @@ describe('reducer', () => {
 
   it('should initialize array values on initialize on empty state', () => {
     const state = reducer({}, {
-      ...initialize({myField: ['initialValue']}),
+      ...initialize({myField: ['initialValue']}, ['myField[]'], {}),
       form: 'foo'
     });
     expect(state.foo)
@@ -653,7 +979,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -672,7 +998,7 @@ describe('reducer', () => {
             email: 'sammy@gmail.com'
           }
         ]
-      }),
+      }, ['accounts[].name', 'accounts[].email'], {}),
       form: 'foo'
     });
     expect(state.foo)
@@ -701,13 +1027,13 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
   });
 
-  it('should set initialize values on initialize on with previous state', () => {
+  it('should set initialize values, but not change dirty value when initializing', () => {
     const state = reducer({
       foo: {
         myField: {
@@ -716,12 +1042,12 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
     }, {
-      ...initialize({myField: 'initialValue'}),
+      ...initialize({myField: 'initialValue'}, ['myField']),
       form: 'foo',
       touch: true
     });
@@ -729,11 +1055,11 @@ describe('reducer', () => {
       .toEqual({
         myField: {
           initial: 'initialValue',
-          value: 'initialValue'
+          value: 'dirtyValue'
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -752,7 +1078,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -769,7 +1095,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -781,7 +1107,7 @@ describe('reducer', () => {
         myField: [],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -794,7 +1120,7 @@ describe('reducer', () => {
         myField: [],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -816,7 +1142,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -836,7 +1162,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -858,7 +1184,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -878,7 +1204,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -899,7 +1225,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -919,7 +1245,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -942,7 +1268,7 @@ describe('reducer', () => {
         },
         _active: 'myField',
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -964,7 +1290,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -977,7 +1303,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -991,7 +1317,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: true,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1004,7 +1330,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1018,7 +1344,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: true,
         _submitFailed: false
       });
@@ -1031,7 +1357,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: true
       }
@@ -1045,12 +1371,119 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: true,
         _submitFailed: true
       });
   });
 
+  it('should set asyncError on nested fields on stopAsyncValidation', () => {
+    const state = reducer({
+      foo: {
+        bar: {
+          myField: {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true
+          },
+          myOtherField: {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true
+          }
+        },
+        _active: undefined,
+        _asyncValidating: true,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...stopAsyncValidation({
+        bar: {
+          myField: 'Error about myField',
+          myOtherField: 'Error about myOtherField'
+        }
+      }),
+      form: 'foo'
+    });
+    expect(state.foo)
+      .toEqual({
+        bar: {
+          myField: {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true,
+            asyncError: 'Error about myField'
+          },
+          myOtherField: {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true,
+            asyncError: 'Error about myOtherField'
+          }
+        },
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      });
+  });
+
+  it('should set asyncError on array fields on stopAsyncValidation', () => {
+    const state = reducer({
+      foo: {
+        bar: [
+          {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true
+          },
+          {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true
+          }
+        ],
+        _active: undefined,
+        _asyncValidating: true,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...stopAsyncValidation({
+        bar: [
+          'Error about myField',
+          'Error about myOtherField'
+        ]
+      }),
+      form: 'foo'
+    });
+    expect(state.foo)
+      .toEqual({
+        bar: [
+          {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true,
+            asyncError: 'Error about myField'
+          },
+          {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true,
+            asyncError: 'Error about myOtherField'
+          }
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      });
+  });
 
   it('should unset asyncValidating on stopAsyncValidation', () => {
     const state = reducer({
@@ -1067,7 +1500,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: true,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1094,7 +1527,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1117,7 +1550,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: true,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1130,18 +1563,16 @@ describe('reducer', () => {
         myField: {
           initial: 'initialValue',
           value: 'dirtyValue',
-          asyncError: undefined,
           touched: true
         },
         myOtherField: {
           initial: 'otherInitialValue',
           value: 'otherDirtyValue',
-          asyncError: undefined,
           touched: true
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1162,13 +1593,13 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: true,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
     }, {
       ...stopAsyncValidation({
-        _error: 'This is a global error'
+        [globalErrorKey]: 'This is a global error'
       }),
       form: 'foo'
     });
@@ -1186,7 +1617,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: 'This is a global error',
+        [globalErrorKey]: 'This is a global error',
         _submitting: false,
         _submitFailed: false
       });
@@ -1199,7 +1630,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: true,
         _submitFailed: false
       }
@@ -1213,9 +1644,117 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
+      });
+  });
+
+  it('should set submitError on nested fields on stopSubmit', () => {
+    const state = reducer({
+      foo: {
+        bar: {
+          myField: {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true
+          },
+          myOtherField: {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true
+          }
+        },
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: true,
+        _submitFailed: false
+      }
+    }, {
+      ...stopSubmit({
+        bar: {
+          myField: 'Error about myField',
+          myOtherField: 'Error about myOtherField'
+        }
+      }),
+      form: 'foo'
+    });
+    expect(state.foo)
+      .toEqual({
+        bar: {
+          myField: {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true,
+            submitError: 'Error about myField'
+          },
+          myOtherField: {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true,
+            submitError: 'Error about myOtherField'
+          }
+        },
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: true
+      });
+  });
+
+  it('should set submitError on array fields on stopSubmit', () => {
+    const state = reducer({
+      foo: {
+        bar: [
+          {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true
+          },
+          {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true
+          }
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: true,
+        _submitFailed: false
+      }
+    }, {
+      ...stopSubmit({
+        bar: [
+          'Error about myField',
+          'Error about myOtherField'
+        ]
+      }),
+      form: 'foo'
+    });
+    expect(state.foo)
+      .toEqual({
+        bar: [
+          {
+            initial: 'initialValue',
+            value: 'dirtyValue',
+            touched: true,
+            submitError: 'Error about myField'
+          },
+          {
+            initial: 'otherInitialValue',
+            value: 'otherDirtyValue',
+            touched: true,
+            submitError: 'Error about myOtherField'
+          }
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: true
       });
   });
 
@@ -1226,7 +1765,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: true,
         _submitFailed: true
       }
@@ -1240,7 +1779,7 @@ describe('reducer', () => {
         should: 'notchange',
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1261,7 +1800,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: true,
         _submitFailed: false
       }
@@ -1288,7 +1827,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: true
       });
@@ -1309,13 +1848,13 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: true,
         _submitFailed: false
       }
     }, {
       ...stopSubmit({
-        _error: 'This is a global error'
+        [globalErrorKey]: 'This is a global error'
       }),
       form: 'foo'
     });
@@ -1333,7 +1872,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: 'This is a global error',
+        [globalErrorKey]: 'This is a global error',
         _submitting: false,
         _submitFailed: true
       });
@@ -1352,7 +1891,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1372,7 +1911,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1393,7 +1932,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1415,7 +1954,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1436,7 +1975,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1458,7 +1997,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1479,7 +2018,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1501,7 +2040,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1526,7 +2065,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1552,7 +2091,53 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      });
+  });
+
+  it('should ignore empty index-less array fields on touch', () => {
+    const state = reducer({
+      foo: {
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...touch('myFields[]'),
+      form: 'foo'
+    });
+    expect(state.foo)
+      .toEqual({
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      });
+  });
+
+  it('should ignore empty index-less array subfields on touch', () => {
+    const state = reducer({
+      foo: {
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...touch('myFields[].name'),
+      form: 'foo'
+    });
+    expect(state.foo)
+      .toEqual({
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1571,7 +2156,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1589,7 +2174,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1610,7 +2195,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1630,7 +2215,7 @@ describe('reducer', () => {
         },
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1651,7 +2236,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1671,7 +2256,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1692,7 +2277,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1712,7 +2297,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1737,7 +2322,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1761,7 +2346,7 @@ describe('reducer', () => {
         ],
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1772,14 +2357,14 @@ describe('reducer', () => {
       foo: {
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       },
       bar: {
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1792,7 +2377,7 @@ describe('reducer', () => {
         bar: {
           _active: undefined,
           _asyncValidating: false,
-          _error: undefined,
+          [globalErrorKey]: undefined,
           _submitting: false,
           _submitFailed: false
         }
@@ -1804,7 +2389,7 @@ describe('reducer', () => {
       foo: {
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1823,14 +2408,14 @@ describe('reducer', () => {
         barKey: {
           _active: undefined,
           _asyncValidating: false,
-          _error: undefined,
+          [globalErrorKey]: undefined,
           _submitting: false,
           _submitFailed: false
         },
         bazKey: {
           _active: undefined,
           _asyncValidating: false,
-          _error: undefined,
+          [globalErrorKey]: undefined,
           _submitting: false,
           _submitFailed: false
         }
@@ -1843,7 +2428,7 @@ describe('reducer', () => {
       bazKey: {
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       }
@@ -1866,7 +2451,7 @@ describe('reducer.plugin', () => {
       .toEqual({
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false
       });
@@ -1890,7 +2475,7 @@ describe('reducer.normalize', () => {
       .toEqual({
         _active: undefined,
         _asyncValidating: false,
-        _error: undefined,
+        [globalErrorKey]: undefined,
         _submitting: false,
         _submitFailed: false,
         myField: {
@@ -1902,7 +2487,7 @@ describe('reducer.normalize', () => {
     const defaultFields = {
       _active: undefined,
       _asyncValidating: false,
-      _error: undefined,
+      [globalErrorKey]: undefined,
       _submitting: false,
       _submitFailed: false,
     };
@@ -1953,6 +2538,5 @@ describe('reducer.normalize', () => {
           }
         }
       });
-
   });
 });

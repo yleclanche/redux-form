@@ -31,22 +31,22 @@ const createHigherOrderComponent = (config,
         // bind functions
         this.asyncValidate = this.asyncValidate.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.fields = readFields(props, {}, this.asyncValidate, isReactNative);
+        this.fields = readFields(props, {}, {}, this.asyncValidate, isReactNative);
       }
 
       componentWillMount() {
-        const {initialize, initialValues} = this.props;
+        const {fields, initialize, initialValues} = this.props;
         if (initialValues) {
-          initialize(initialValues);
+          initialize(initialValues, fields);
         }
       }
 
       componentWillReceiveProps(nextProps) {
         if (!deepEqual(this.props.fields, nextProps.fields) || !deepEqual(this.props.form, nextProps.form)) {
-          this.fields = readFields(nextProps, this.fields, this.asyncValidate, isReactNative);
+          this.fields = readFields(nextProps, this.props, this.fields, this.asyncValidate, isReactNative);
         }
         if (!deepEqual(this.props.initialValues, nextProps.initialValues)) {
-          this.props.initialize(nextProps.initialValues);
+          this.props.initialize(nextProps.initialValues, nextProps.fields);
         }
       }
 
@@ -81,14 +81,13 @@ const createHigherOrderComponent = (config,
           }
           return submit;
         };
-        const values = getValues(fields, form);
         return !submitOrEvent || silenceEvent(submitOrEvent) ?
           // submitOrEvent is an event: fire submit
-          handleSubmit(check(onSubmit), values, this.props, this.asyncValidate) :
+          handleSubmit(check(onSubmit), getValues(fields, form), this.props, this.asyncValidate) :
           // submitOrEvent is the submit function: return deferred submit thunk
           silenceEvents(event => {
             silenceEvent(event);
-            handleSubmit(check(submitOrEvent), values, this.props, this.asyncValidate);
+            handleSubmit(check(submitOrEvent), getValues(fields, form), this.props, this.asyncValidate);
           });
       }
 
@@ -121,7 +120,7 @@ const createHigherOrderComponent = (config,
           // ^ doesn't just pass this.asyncValidate to disallow values passing
           destroyForm: silenceEvents(destroy),
           handleSubmit: this.handleSubmit,
-          initializeForm: silenceEvents(initialize),
+          initializeForm: silenceEvents(initValues => initialize(initValues, fields)),
           resetForm: silenceEvents(reset),
           touch: silenceEvents((...touchFields) => touch(...touchFields)),
           touchAll: silenceEvents(() => touch(...fields)),

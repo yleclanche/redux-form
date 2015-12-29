@@ -17,6 +17,19 @@ describe('getValuesFromState', () => {
       });
   });
 
+  it('should understand undefined values that have only been touched', () => {
+    const state = {
+      foo: {value: 'dog', touched: true},
+      bar: {touched: true},
+      baz: {touched: true}
+    };
+    expect(getValuesFromState(state))
+      .toBeA('object')
+      .toEqual({
+        foo: 'dog'
+      });
+  });
+
   it('should get deep values from state', () => {
     const state = {
       foo: {
@@ -175,6 +188,22 @@ describe('getValuesFromState', () => {
       .toEqual({
         foo: 'dog',
         bar: 'cat'
+      });
+  });
+
+  it('should ignore visited fields without values', () => {
+    const state = {
+      foo: {
+        value: 'dog'
+      },
+      bar: {
+        visited: true
+      }
+    };
+    expect(getValuesFromState(state))
+      .toBeA('object')
+      .toEqual({
+        foo: 'dog'
       });
   });
 });

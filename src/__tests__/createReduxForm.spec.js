@@ -407,6 +407,8 @@ describe('createReduxForm', () => {
       </Provider>
     );
     const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+    expect(stub.props.fields.children).toBeA('array');
+    expect(stub.props.fields.children.length).toBe(2);
 
     expectField({
       field: stub.props.fields.children[0].name,
@@ -884,6 +886,47 @@ describe('createReduxForm', () => {
     TestUtils.Simulate.submit(button);
   });
 
+  it('should call async onSubmit prop', (done) => {
+    const submit = (values) => {
+      expect(values).toEqual({
+        foo: undefined,
+        bar: undefined
+      });
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve();
+        }, 100);
+      }).then(done);
+    };
+
+    class FormComponent extends Component {
+      render() {
+        return (
+          <form onSubmit={this.props.handleSubmit}/>
+        );
+      }
+    }
+    FormComponent.propTypes = {
+      handleSubmit: PropTypes.func.isRequired
+    };
+
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['foo', 'bar'],
+      readonly: true
+    })(FormComponent);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated onSubmit={submit}/>
+      </Provider>
+    );
+    const button = TestUtils.findRenderedDOMComponentWithTag(dom, 'form');
+
+    TestUtils.Simulate.submit(button);
+  });
+
   it('should call submit function passed to handleSubmit', (done) => {
     const submit = (values) => {
       expect(values).toEqual({
@@ -922,34 +965,135 @@ describe('createReduxForm', () => {
     TestUtils.Simulate.submit(button);
   });
 
-  // todo: find a way to get this to pass:
+  it('should call submit function passed to async handleSubmit', (done) => {
+    const submit = (values) => {
+      expect(values).toEqual({
+        foo: undefined,
+        bar: undefined
+      });
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve();
+        }, 100);
+      }).then(done);
+    };
 
-  //it('should initialize a non-array field with an array value and let it read it back', () => {
-  //  const store = makeStore();
-  //  const form = 'testForm';
-  //  const Decorated = reduxForm({
-  //    form,
-  //    fields: ['children'],
-  //    initialValues: {
-  //      children: [1, 2]
-  //    }
-  //  })(Form);
-  //  const dom = TestUtils.renderIntoDocument(
-  //    <Provider store={store}>
-  //      <Decorated/>
-  //    </Provider>
-  //  );
-  //  const stub = TestUtils.findRenderedComponentWithType(dom, Form);
-  //
-  //  expectField({
-  //    field: stub.props.fields.children,
-  //    name: 'children',
-  //    value: [1, 2],
-  //    valid: true,
-  //    dirty: false,
-  //    error: undefined,
-  //    touched: false,
-  //    visited: false
-  //  });
-  //});
+    class FormComponent extends Component {
+      render() {
+        return (
+          <form onSubmit={this.props.handleSubmit(submit)}/>
+        );
+      }
+    }
+
+    FormComponent.propTypes = {
+      handleSubmit: PropTypes.func.isRequired
+    };
+
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['foo', 'bar'],
+      readonly: true
+    })(FormComponent);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated />
+      </Provider>
+    );
+    const button = TestUtils.findRenderedDOMComponentWithTag(dom, 'form');
+
+    TestUtils.Simulate.submit(button);
+  });
+
+  it('should initialize a non-array field with an array value and let it read it back', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['children'],
+      initialValues: {
+        children: [1, 2]
+      }
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    expectField({
+      field: stub.props.fields.children,
+      name: 'children',
+      value: [1, 2],
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+  });
+
+  it('should initialize an array field without blowing away existing value', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['children']
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    // set value
+    stub.props.fields.children.onChange([1, 2]);
+    // check value
+    expectField({
+      field: stub.props.fields.children,
+      name: 'children',
+      value: [1, 2],
+      valid: true,
+      dirty: true,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+    // initialize new values
+    stub.props.initializeForm({children: [3, 4]});
+    // check value
+    expectField({
+      field: stub.props.fields.children,
+      name: 'children',
+      value: [1, 2],
+      valid: true,
+      dirty: true,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+    // check state
+    expect(store.getState().form.testForm.children)
+      .toEqual({
+        initial: [3, 4],
+        value: [1, 2]
+      });
+    // reset form to newly initialized values
+    stub.props.resetForm();
+    // check value
+    expectField({
+      field: stub.props.fields.children,
+      name: 'children',
+      value: [3, 4],
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+  });
 });
