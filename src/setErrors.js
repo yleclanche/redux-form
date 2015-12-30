@@ -8,14 +8,18 @@ const setErrors = (state, errors, destKey) => {
     if (Array.isArray(state)) {
       return state.map((stateItem, index) => setErrors(stateItem, errors && errors[index], destKey));
     }
+
     if (state && typeof state === 'object') {
-      return Object.keys(state)
+      const oldPrototype = Object.getPrototypeOf(state);
+      let newState = Object.keys(state)
         .reduce((accumulator, key) =>
             isMetaKey(key) ? accumulator : {
               ...accumulator,
               [key]: setErrors(state[key], errors && errors[key], destKey)
             },
           state);
+      newState.__proto__ = oldPrototype;
+      return newState;
     }
     return state;
   };
