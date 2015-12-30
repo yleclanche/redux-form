@@ -6,7 +6,7 @@ import bindActionData from './bindActionData';
 import getValues from './getValues';
 import isValid from './isValid';
 import readFields from './readFields';
-import handleSubmit from './handleSubmit';
+const handleSubmit = require('./handleSubmit');
 import asyncValidation from './asyncValidation';
 import silenceEvents from './events/silenceEvents';
 import silenceEvent from './events/silenceEvent';
