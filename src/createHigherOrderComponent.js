@@ -16,6 +16,18 @@ import wrapMapStateToProps from './wrapMapStateToProps';
 /**
  * Creates a HOC that knows how to create redux-connected sub-components.
  */
+
+const isAlreadyInitialized = function(form){
+  let alreadyInitialized = false;
+    for(let key in form) {
+      if (!key.startsWith('_')) {
+        alreadyInitialized = true;
+        continue;
+      }
+    }
+  return alreadyInitialized;
+};
+
 const createHigherOrderComponent = (config,
                                     isReactNative,
                                     React,
@@ -35,8 +47,9 @@ const createHigherOrderComponent = (config,
       }
 
       componentWillMount() {
-        const {fields, initialize, initialValues} = this.props;
-        if (initialValues) {
+        const {form, fields, initialize, initialValues} = this.props;
+        console.log(isAlreadyInitialized())
+        if (!isAlreadyInitialized(form) && initialValues) {
           initialize(initialValues, fields);
         }
       }
@@ -45,7 +58,8 @@ const createHigherOrderComponent = (config,
         if (!deepEqual(this.props.fields, nextProps.fields) || !deepEqual(this.props.form, nextProps.form)) {
           this.fields = readFields(nextProps, this.props, this.fields, this.asyncValidate, isReactNative);
         }
-        if (!deepEqual(this.props.initialValues, nextProps.initialValues)) {
+        // old condition  if (!deepEqual(this.props.initialValues, nextProps.initialValues)) {
+        if (!isAlreadyInitialized(this.props.form)){
           this.props.initialize(nextProps.initialValues, nextProps.fields);
         }
       }
