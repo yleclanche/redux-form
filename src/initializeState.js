@@ -1,8 +1,7 @@
-const updateEntry = (entry, value) => {
-  if (entry && entry.value !== undefined) {
-    return {initial: value, value: entry.value};
-  }
-  return value === undefined ? {} : {initial: value, value};
+import {makeFieldValue} from './fieldValue';
+
+const makeEntry = (value) => {
+  return makeFieldValue(value === undefined ? {} : {initial: value, value});
 };
 
 /**
@@ -42,14 +41,14 @@ const initializeState = (values, fields, state = {}) => {
           result[key] = srcArray.map((srcValue, srcIndex) =>
             initializeField(rest, srcValue, destArray && destArray[srcIndex]));
         } else {
-          result[key] = srcArray.map((srcValue, srcIndex) =>
-            updateEntry(destArray && destArray[srcIndex], srcValue));
+          result[key] = srcArray.map(srcValue =>
+            makeEntry(srcValue));
         }
       } else {
-        result[key] = updateEntry(destArray, srcArray);
+        result[key] = [];
       }
     } else {
-      result[path] = updateEntry(result[path], src && src[path]);
+      result[path] = makeEntry(src && src[path]);
     }
     return result;
   };

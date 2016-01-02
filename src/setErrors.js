@@ -1,3 +1,5 @@
+import {isFieldValue, makeFieldValue} from './fieldValue';
+
 const isMetaKey = key => key[0] === '_';
 
 /**
@@ -11,17 +13,20 @@ const setErrors = (state, errors, destKey) => {
 
     if (state && typeof state === 'object') {
       const oldPrototype = Object.getPrototypeOf(state);
-      let newState = Object.keys(state)
+      const result = Object.keys(state)
         .reduce((accumulator, key) =>
             isMetaKey(key) ? accumulator : {
               ...accumulator,
               [key]: setErrors(state[key], errors && errors[key], destKey)
             },
           state);
-      newState.__proto__ = oldPrototype;
-      return newState;
+      result.__proto__ = oldPrototype;
+      if (isFieldValue(state)) {
+        makeFieldValue(result);
+      }
+      return result;
     }
-    return state;
+    return makeFieldValue(state);
   };
   if (!errors) {
     if (!state) {
@@ -30,15 +35,15 @@ const setErrors = (state, errors, destKey) => {
     if (state[destKey]) {
       const copy = {...state};
       delete copy[destKey];
-      return copy;
+      return makeFieldValue(copy);
     }
     return clear();
   }
   if (typeof errors === 'string') {
-    return {
+    return makeFieldValue({
       ...state,
       [destKey]: errors // must be actual error
-    };
+    });
   }
   if (Array.isArray(errors)) {
     if (!state || Array.isArray(state)) {
