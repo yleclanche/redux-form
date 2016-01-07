@@ -65,7 +65,8 @@ const readField = (state, fieldName, pathToHere = '', fields, syncErrors, asyncV
   const field = fields[fieldName] || {};
   if (field.name !== name) {
     const onChange = createOnChange(name, change, isReactNative);
-    const initialValue = read(name, initialValues);
+    const initialFormValue = read(`${name}.initial`, form);
+    const initialValue = initialFormValue || read(name, initialValues);
     field.name = name;
     field.defaultChecked = initialValue === true;
     field.defaultValue = initialValue;

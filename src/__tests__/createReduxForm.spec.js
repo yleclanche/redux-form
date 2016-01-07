@@ -25,7 +25,7 @@ describe('createReduxForm', () => {
     }
   }
 
-  const expectField = ({field, name, value, valid, dirty, error, touched, visited, readonly}) => {
+  const expectField = ({field, name, value, initial, valid, dirty, error, touched, visited, readonly}) => {
     expect(field).toBeA('object');
     expect(field.name).toBe(name);
     expect(field.value).toEqual(value);
@@ -44,11 +44,14 @@ describe('createReduxForm', () => {
       expect(field.onFocus).toBeA('function');
       expect(field.onUpdate).toBeA('function');
     }
+    expect(field.initialValue).toEqual(initial);
+    expect(field.defaultValue).toEqual(initial);
+    expect(field.defaultChecked).toBe(initial === true);
     expect(field.valid).toBe(valid);
     expect(field.invalid).toBe(!valid);
     expect(field.dirty).toBe(dirty);
     expect(field.pristine).toBe(!dirty);
-    expect(field.error).toBe(error);
+    expect(field.error).toEqual(error);
     expect(field.touched).toBe(touched);
     expect(field.visited).toBe(visited);
   };
@@ -85,6 +88,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -96,6 +100,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -122,6 +127,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue',
+      initial: 'fooValue',
       valid: true,
       dirty: false,
       error: undefined,
@@ -133,6 +139,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: 'barValue',
+      initial: 'barValue',
       valid: true,
       dirty: false,
       error: undefined,
@@ -163,6 +170,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue',
+      initial: undefined,
       valid: true,
       dirty: true,
       error: undefined,
@@ -174,6 +182,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -205,6 +214,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue',
+      initial: undefined,
       valid: true,
       dirty: true,
       error: undefined,
@@ -216,6 +226,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -246,6 +257,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue',
+      initial: undefined,
       valid: true,
       dirty: true,
       error: undefined,
@@ -257,6 +269,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -288,6 +301,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue',
+      initial: undefined,
       valid: true,
       dirty: true,
       error: undefined,
@@ -299,6 +313,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -333,6 +348,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -344,6 +360,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -371,6 +388,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue',
+      initial: 'fooValue',
       valid: true,
       dirty: false,
       error: undefined,
@@ -385,6 +403,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue!',
+      initial: 'fooValue',
       valid: true,
       dirty: true,
       error: undefined,
@@ -399,7 +418,7 @@ describe('createReduxForm', () => {
     const form = 'testForm';
     const Decorated = reduxForm({
       form,
-      fields: ['children[].name'],
+      fields: ['children[].name']
     })(Form);
     const dom = TestUtils.renderIntoDocument(
       <Provider store={store}>
@@ -414,6 +433,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children[0].name,
       name: 'children[0].name',
       value: 'Tom',
+      initial: 'Tom',
       valid: true,
       dirty: false,
       error: undefined,
@@ -425,6 +445,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children[1].name,
       name: 'children[1].name',
       value: 'Jerry',
+      initial: 'Jerry',
       valid: true,
       dirty: false,
       error: undefined,
@@ -439,6 +460,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children[0].name,
       name: 'children[0].name',
       value: 'Tim',
+      initial: 'Tom',
       valid: true,
       dirty: true,
       error: undefined,
@@ -450,6 +472,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children[1].name,
       name: 'children[1].name',
       value: 'Jerry',
+      initial: 'Jerry',
       valid: true,
       dirty: false,
       error: undefined,
@@ -487,6 +510,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue',
+      initial: 'fooValue',
       valid: true,
       dirty: false,
       error: undefined,
@@ -499,6 +523,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: 'barValue',
+      initial: 'barValue',
       valid: true,
       dirty: false,
       error: undefined,
@@ -516,6 +541,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: 'fooValue!',
+      initial: 'fooValue',
       valid: false,
       dirty: true,
       error: 'Too long',
@@ -530,6 +556,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: '',
+      initial: 'barValue',
       valid: false,
       dirty: true,
       error: 'Required',
@@ -571,6 +598,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo.bar,
       name: 'foo.bar',
       value: 'fooBar',
+      initial: 'fooBar',
       valid: true,
       dirty: false,
       error: undefined,
@@ -588,6 +616,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo.bar,
       name: 'foo.bar',
       value: 'fooBarBaz',
+      initial: 'fooBar',
       valid: false,
       dirty: true,
       error: 'Too long',
@@ -633,6 +662,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo[0],
       name: 'foo[0]',
       value: 'fooBar',
+      initial: 'fooBar',
       valid: true,
       dirty: false,
       error: undefined,
@@ -645,6 +675,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar[0].name,
       name: 'bar[0].name',
       value: '',
+      initial: '',
       valid: true,
       dirty: false,
       error: undefined,
@@ -662,6 +693,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo[0],
       name: 'foo[0]',
       value: 'fooBarBaz',
+      initial: 'fooBar',
       valid: false,
       dirty: true,
       error: 'Too long',
@@ -676,6 +708,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar[0].name,
       name: 'bar[0].name',
       value: 'Ralphie',
+      initial: '',
       valid: false,
       dirty: true,
       error: `You'll shoot your eye out, kid!`,
@@ -788,6 +821,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.foo,
       name: 'foo',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -800,6 +834,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.bar,
       name: 'bar',
       value: undefined,
+      initial: undefined,
       valid: true,
       dirty: false,
       error: undefined,
@@ -830,6 +865,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children[0].name,
       name: 'children[0].name',
       value: 'Tom',
+      initial: 'Tom',
       valid: true,
       dirty: false,
       error: undefined,
@@ -841,6 +877,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children[1].name,
       name: 'children[1].name',
       value: 'Jerry',
+      initial: 'Jerry',
       valid: true,
       dirty: false,
       error: undefined,
@@ -1028,6 +1065,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children,
       name: 'children',
       value: [1, 2],
+      initial: [1, 2],
       valid: true,
       dirty: false,
       error: undefined,
@@ -1059,6 +1097,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.colors[0],
       name: 'colors[0]',
       value: 'red',
+      initial: 'red',
       valid: true,
       dirty: false,
       error: undefined,
@@ -1069,12 +1108,124 @@ describe('createReduxForm', () => {
       field: stub.props.fields.colors[1],
       name: 'colors[1]',
       value: 'blue',
+      initial: 'blue',
       valid: true,
       dirty: false,
       error: undefined,
       touched: false,
       visited: false
     });
+  });
+
+  it('should initialize a deep array field with values', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['users[].name', 'users[].age'],
+      initialValues: {
+        users: [
+          {
+            name: 'Bob',
+            age: 27
+          }
+        ]
+      }
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    expect(stub.props.fields.users).toBeA('array');
+    expect(stub.props.fields.users.length).toBe(1);
+    expect(stub.props.fields.users[0]).toBeA('object');
+    expectField({
+      field: stub.props.fields.users[0].name,
+      name: 'users[0].name',
+      value: 'Bob',
+      initial: 'Bob',
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+    expectField({
+      field: stub.props.fields.users[0].age,
+      name: 'users[0].age',
+      value: 27,
+      initial: 27,
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+  });
+
+  it('should add array values with defaults', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['users[].name', 'users[].age']
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    expect(stub.props.fields.users).toBeA('array');
+    expect(stub.props.fields.users.length).toBe(0);
+    expect(stub.props.fields.users.addField).toBeA('function');
+
+    // add field
+    stub.props.fields.users.addField({name: 'Bob', age: 27});
+
+    // check field
+    expect(stub.props.fields.users.length).toBe(1);
+    expect(stub.props.fields.users[0]).toBeA('object');
+    expectField({
+      field: stub.props.fields.users[0].name,
+      name: 'users[0].name',
+      value: 'Bob',
+      initial: 'Bob',
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+    expectField({
+      field: stub.props.fields.users[0].age,
+      name: 'users[0].age',
+      value: 27,
+      initial: 27,
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+
+    // check state
+    expect(store.getState().form.testForm.users).toBeA('array');
+    expect(store.getState().form.testForm.users.length).toBe(1);
+    expect(store.getState().form.testForm.users[0].name)
+      .toEqual({
+        initial: 'Bob',
+        value: 'Bob'
+      });
+    expect(store.getState().form.testForm.users[0].age)
+      .toEqual({
+        initial: 27,
+        value: 27
+      });
   });
 
   it('should initialize an array field, blowing away existing value', () => {
@@ -1098,6 +1249,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children,
       name: 'children',
       value: [1, 2],
+      initial: undefined,
       valid: true,
       dirty: true,
       error: undefined,
@@ -1111,6 +1263,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children,
       name: 'children',
       value: [3, 4],
+      initial: [3, 4],
       valid: true,
       dirty: false,
       error: undefined,
@@ -1130,6 +1283,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.children,
       name: 'children',
       value: [3, 4],
+      initial: [3, 4],
       valid: true,
       dirty: false,
       error: undefined,
@@ -1157,6 +1311,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.name,
       name: 'name',
       value: 'Bob',
+      initial: 'Bob',
       valid: true,
       dirty: false,
       error: undefined,
@@ -1176,6 +1331,7 @@ describe('createReduxForm', () => {
       field: stub.props.fields.name,
       name: 'name',
       value: 'Dan',
+      initial: 'Bob',
       valid: true,
       dirty: true,
       error: undefined,
@@ -1201,6 +1357,7 @@ describe('createReduxForm', () => {
       field: stub2.props.fields.name,
       name: 'name',
       value: 'Dan',
+      initial: 'Bob',
       valid: true,
       dirty: true,
       error: undefined,
@@ -1215,12 +1372,13 @@ describe('createReduxForm', () => {
       });
 
     // manually initialize new values
-    stub.props.initializeForm({name: 'Tom'});
+    stub2.props.initializeForm({name: 'Tom'});
     // check value
     expectField({
       field: stub2.props.fields.name,
       name: 'name',
       value: 'Tom',
+      initial: 'Tom',
       valid: true,
       dirty: false,
       error: undefined,
@@ -1232,6 +1390,201 @@ describe('createReduxForm', () => {
       .toEqual({
         initial: 'Tom',
         value: 'Tom'
+      });
+  });
+
+  it('should allow initialization from action', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['name']
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    // check value
+    expectField({
+      field: stub.props.fields.name,
+      name: 'name',
+      value: undefined,
+      initial: undefined,
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+    // manually initialize new values
+    stub.props.initializeForm({name: 'Tom'});
+    // check state
+    expect(store.getState().form.testForm.name)
+      .toEqual({
+        initial: 'Tom',
+        value: 'Tom'
+      });
+    // check value
+    expectField({
+      field: stub.props.fields.name,
+      name: 'name',
+      value: 'Tom',
+      initial: 'Tom',
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+  });
+
+  it('should allow deep sync validation error values', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const deepError = {
+      some: 'object with',
+      deep: 'values'
+    };
+    const Decorated = reduxForm({
+      form,
+      fields: ['name'],
+      validate: () => ({name: deepError})
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    expectField({
+      field: stub.props.fields.name,
+      name: 'name',
+      value: undefined,
+      initial: undefined,
+      valid: false,
+      dirty: false,
+      error: deepError,
+      touched: false,
+      visited: false
+    });
+  });
+
+  it('should allow deep async validation error values', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const deepError = {
+      some: 'object with',
+      deep: 'values'
+    };
+    const Decorated = reduxForm({
+      form,
+      fields: ['name'],
+      initialValues: {name: 'Tom'},
+      asyncValidate: () => Promise.reject({name: deepError})
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    // check field before validation
+    expectField({
+      field: stub.props.fields.name,
+      name: 'name',
+      value: 'Tom',
+      initial: 'Tom',
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+    return stub.props.asyncValidate()
+      .then(() => {
+        expect(true).toBe(false); // should not be in success block
+      }, () => {
+        // check state
+        expect(store.getState().form.testForm.name)
+          .toEqual({
+            initial: 'Tom',
+            value: 'Tom',
+            asyncError: deepError
+          });
+        // check field
+        expectField({
+          field: stub.props.fields.name,
+          name: 'name',
+          value: 'Tom',
+          initial: 'Tom',
+          valid: false,
+          dirty: false,
+          error: deepError,
+          touched: false,
+          visited: false
+        });
+      });
+  });
+
+  it('should allow deep submit validation error values', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const deepError = {
+      some: 'object with',
+      deep: 'values'
+    };
+    const Decorated = reduxForm({
+      form,
+      fields: ['name'],
+      initialValues: {name: 'Tom'},
+      onSubmit: () => Promise.reject({name: deepError})
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    // check before validation
+    expectField({
+      field: stub.props.fields.name,
+      name: 'name',
+      value: 'Tom',
+      initial: 'Tom',
+      valid: true,
+      dirty: false,
+      error: undefined,
+      touched: false,
+      visited: false
+    });
+    return stub.props.handleSubmit()
+      .then(() => {
+        // check state
+        expect(store.getState().form.testForm.name)
+          .toEqual({
+            initial: 'Tom',
+            value: 'Tom',
+            submitError: deepError,
+            touched: true
+          });
+        // check field
+        expectField({
+          field: stub.props.fields.name,
+          name: 'name',
+          value: 'Tom',
+          initial: 'Tom',
+          valid: false,
+          dirty: false,
+          error: deepError,
+          touched: true,
+          visited: false
+        });
       });
   });
 });
