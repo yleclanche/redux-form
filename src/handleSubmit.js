@@ -2,9 +2,11 @@ import isPromise from 'is-promise';
 import isValid from './isValid';
 
 const handleSubmit = (submit, values, props, asyncValidate) => {
+  const handleErrors = require('helpers/forms').handleErrors;
   const {dispatch, fields, startSubmit, stopSubmit, submitFailed, returnRejectedSubmitPromise, touch, validate} = props;
   const syncErrors = validate(values, props);
   touch(...fields); // touch all fields
+
   if (isValid(syncErrors)) {
     const doSubmit = () => {
       const result = submit(values, dispatch);
@@ -15,6 +17,7 @@ const handleSubmit = (submit, values, props, asyncValidate) => {
           return submitResult;
         }, submitError => {
           stopSubmit(submitError);
+          handleErrors(submitError);
           if (returnRejectedSubmitPromise) {
             return Promise.reject(submitError);
           }
@@ -30,6 +33,9 @@ const handleSubmit = (submit, values, props, asyncValidate) => {
         return returnRejectedSubmitPromise ? Promise.reject() : Promise.resolve();
       }) :
       doSubmit(); // no async validation, so submit
+  }
+  else{
+    handleErrors(syncErrors);
   }
   submitFailed();
 };

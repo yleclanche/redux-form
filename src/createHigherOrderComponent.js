@@ -17,6 +17,7 @@ import wrapMapStateToProps from './wrapMapStateToProps';
  * Creates a HOC that knows how to create redux-connected sub-components.
  */
 
+
 const createHigherOrderComponent = (config,
                                     isReactNative,
                                     React,
@@ -43,11 +44,11 @@ const createHigherOrderComponent = (config,
       }
 
       componentWillReceiveProps(nextProps) {
+        const {form} = this.props;
         if (!deepEqual(this.props.fields, nextProps.fields) || !deepEqual(this.props.form, nextProps.form)) {
           this.fields = readFields(nextProps, this.props, this.fields, this.asyncValidate, isReactNative);
         }
-        // old condition  if (!deepEqual(this.props.initialValues, nextProps.initialValues)) {
-        if (!isAlreadyInitialized(this.props.form)){
+        if (!form._initialized && !deepEqual(this.props.initialValues, nextProps.initialValues)) {
           this.props.initialize(nextProps.initialValues, nextProps.fields);
         }
       }
