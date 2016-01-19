@@ -2,7 +2,7 @@ import expect from 'expect';
 import reducer, {globalErrorKey} from '../reducer';
 import bindActionData from '../bindActionData';
 import {addArrayValue, blur, change, focus, initialize, removeArrayValue, reset, startAsyncValidation, startSubmit,
-  stopAsyncValidation, stopSubmit, touch, untouch, destroy} from '../actions';
+  stopAsyncValidation, stopSubmit, swapArrayValues, touch, untouch, destroy} from '../actions';
 import {isFieldValue, makeFieldValue} from '../fieldValue';
 
 describe('reducer', () => {
@@ -211,121 +211,121 @@ describe('reducer', () => {
 
   // TODO: Find a way to make this pass:
   /*
-  it('should push an array value which is a deep object', () => {
-    const state = reducer({
-      testForm: {
-        friends: [
-          {
-            name: {
-              initial: 'name-1',
-              value: 'name-1'
-            },
-            address: {
-              street: {
-                initial: 'street-1',
-                value: 'street-1'
-              },
-              postalCode: {
-                initial: 'postalCode-1',
-                value: 'postalCode-1'
-              }
-            }
-          },
-          {
-            name: {
-              initial: 'name-2',
-              value: 'name-2'
-            },
-            address: {
-              street: {
-                initial: 'street-2',
-                value: 'street-2'
-              },
-              postalCode: {
-                initial: 'postalCode-2',
-                value: 'postalCode-2'
-              }
-            }
-          }
-        ],
-        _active: undefined,
-        _asyncValidating: false,
-        _error: undefined,
-        _initialized: false,
-        _submitting: false,
-        _submitFailed: false
-      }
-    }, {
-      ...addArrayValue('friends', {
-        name: 'name-3',
-        address: {
-          street: 'street-3',
-          postalCode: 'postalCode-3'
-        }
-      }, undefined),
-      form: 'testForm'
-    });
-    expect(state.testForm)
-      .toEqual({
-        friends: [
-          {
-            name: {
-              initial: 'name-1',
-              value: 'name-1'
-            },
-            address: {
-              street: {
-                initial: 'street-1',
-                value: 'street-1'
-              },
-              postalCode: {
-                initial: 'postalCode-1',
-                value: 'postalCode-1'
-              }
-            }
-          },
-          {
-            name: {
-              initial: 'name-2',
-              value: 'name-2'
-            },
-            address: {
-              street: {
-                initial: 'street-2',
-                value: 'street-2'
-              },
-              postalCode: {
-                initial: 'postalCode-2',
-                value: 'postalCode-2'
-              }
-            }
-          },
-          {
-            name: {
-              initial: 'name-3',
-              value: 'name-3'
-            },
-            address: {
-              street: {
-                initial: 'street-3',
-                value: 'street-3'
-              },
-              postalCode: {
-                initial: 'postalCode-3',
-                value: 'postalCode-3'
-              }
-            }
-          }
-        ],
-        _active: undefined,
-        _asyncValidating: false,
-        _error: undefined,
-        _initialized: false,
-        _submitting: false,
-        _submitFailed: false
-      });
-  });
-  */
+   it('should push an array value which is a deep object', () => {
+   const state = reducer({
+   testForm: {
+   friends: [
+   {
+   name: {
+   initial: 'name-1',
+   value: 'name-1'
+   },
+   address: {
+   street: {
+   initial: 'street-1',
+   value: 'street-1'
+   },
+   postalCode: {
+   initial: 'postalCode-1',
+   value: 'postalCode-1'
+   }
+   }
+   },
+   {
+   name: {
+   initial: 'name-2',
+   value: 'name-2'
+   },
+   address: {
+   street: {
+   initial: 'street-2',
+   value: 'street-2'
+   },
+   postalCode: {
+   initial: 'postalCode-2',
+   value: 'postalCode-2'
+   }
+   }
+   }
+   ],
+   _active: undefined,
+   _asyncValidating: false,
+   _error: undefined,
+   _initialized: false,
+   _submitting: false,
+   _submitFailed: false
+   }
+   }, {
+   ...addArrayValue('friends', {
+   name: 'name-3',
+   address: {
+   street: 'street-3',
+   postalCode: 'postalCode-3'
+   }
+   }, undefined),
+   form: 'testForm'
+   });
+   expect(state.testForm)
+   .toEqual({
+   friends: [
+   {
+   name: {
+   initial: 'name-1',
+   value: 'name-1'
+   },
+   address: {
+   street: {
+   initial: 'street-1',
+   value: 'street-1'
+   },
+   postalCode: {
+   initial: 'postalCode-1',
+   value: 'postalCode-1'
+   }
+   }
+   },
+   {
+   name: {
+   initial: 'name-2',
+   value: 'name-2'
+   },
+   address: {
+   street: {
+   initial: 'street-2',
+   value: 'street-2'
+   },
+   postalCode: {
+   initial: 'postalCode-2',
+   value: 'postalCode-2'
+   }
+   }
+   },
+   {
+   name: {
+   initial: 'name-3',
+   value: 'name-3'
+   },
+   address: {
+   street: {
+   initial: 'street-3',
+   value: 'street-3'
+   },
+   postalCode: {
+   initial: 'postalCode-3',
+   value: 'postalCode-3'
+   }
+   }
+   }
+   ],
+   _active: undefined,
+   _asyncValidating: false,
+   _error: undefined,
+   _initialized: false,
+   _submitting: false,
+   _submitFailed: false
+   });
+   });
+   */
 
   it('should push a deep array value which is a nested object', () => {
     const state = reducer({
@@ -1348,6 +1348,189 @@ describe('reducer', () => {
     expect(isFieldValue(state.testForm.myField)).toBe(false);
     expect(isFieldValue(state.testForm.myField[0])).toBe(true);
     expect(isFieldValue(state.testForm.myField[1])).toBe(true);
+  });
+
+  it('should not change empty array value on swap', () => {
+    const state = reducer({
+      testForm: {
+        myField: [],
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _initialized: false,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...swapArrayValues('myField'),
+      form: 'testForm'
+    });
+    expect(state.testForm)
+        .toEqual({
+          myField: [],
+          _active: undefined,
+          _asyncValidating: false,
+          [globalErrorKey]: undefined,
+          _initialized: false,
+          _submitting: false,
+          _submitFailed: false
+        });
+  });
+
+  it('should should swap two array values at different indexes', () => {
+    const state = reducer({
+      testForm: {
+        myField: [
+          makeFieldValue({
+            value: 'foo'
+          }),
+          makeFieldValue({
+            value: 'bar'
+          }),
+          makeFieldValue({
+            value: 'baz'
+          })
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _initialized: false,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...swapArrayValues('myField', 0, 2),
+      form: 'testForm'
+    });
+    expect(state.testForm)
+        .toEqual({
+          myField: [
+            {
+              value: 'baz'
+            },
+            {
+              value: 'bar'
+            },
+            {
+              value: 'foo'
+            }
+          ],
+          _active: undefined,
+          _asyncValidating: false,
+          [globalErrorKey]: undefined,
+          _initialized: false,
+          _submitting: false,
+          _submitFailed: false
+        });
+    expect(isFieldValue(state.testForm.myField)).toBe(false);
+    expect(isFieldValue(state.testForm.myField[0])).toBe(true);
+    expect(isFieldValue(state.testForm.myField[1])).toBe(true);
+    expect(isFieldValue(state.testForm.myField[2])).toBe(true);
+
+  });
+
+  it('should not change array on swap with the same index', () => {
+    const state = reducer({
+      testForm: {
+        myField: [
+          makeFieldValue({
+            value: 'foo'
+          }),
+          makeFieldValue({
+            value: 'bar'
+          }),
+          makeFieldValue({
+            value: 'baz'
+          })
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _initialized: false,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...swapArrayValues('myField', 1, 1),
+      form: 'testForm'
+    });
+    expect(state.testForm)
+        .toEqual({
+          myField: [
+            {
+              value: 'foo'
+            },
+            {
+              value: 'bar'
+            },
+            {
+              value: 'baz'
+            }
+          ],
+          _active: undefined,
+          _asyncValidating: false,
+          [globalErrorKey]: undefined,
+          _initialized: false,
+          _submitting: false,
+          _submitFailed: false
+        });
+    expect(isFieldValue(state.testForm.myField)).toBe(false);
+    expect(isFieldValue(state.testForm.myField[0])).toBe(true);
+    expect(isFieldValue(state.testForm.myField[1])).toBe(true);
+    expect(isFieldValue(state.testForm.myField[2])).toBe(true);
+
+  });
+
+  it('should not change array on swap with out of bounds index', () => {
+    const state = reducer({
+      testForm: {
+        myField: [
+          makeFieldValue({
+            value: 'foo'
+          }),
+          makeFieldValue({
+            value: 'bar'
+          }),
+          makeFieldValue({
+            value: 'baz'
+          })
+        ],
+        _active: undefined,
+        _asyncValidating: false,
+        [globalErrorKey]: undefined,
+        _initialized: false,
+        _submitting: false,
+        _submitFailed: false
+      }
+    }, {
+      ...swapArrayValues('myField', 1, 4),
+      form: 'testForm'
+    });
+    expect(state.testForm)
+        .toEqual({
+          myField: [
+            {
+              value: 'foo'
+            },
+            {
+              value: 'bar'
+            },
+            {
+              value: 'baz'
+            }
+          ],
+          _active: undefined,
+          _asyncValidating: false,
+          [globalErrorKey]: undefined,
+          _initialized: false,
+          _submitting: false,
+          _submitFailed: false
+        });
+    expect(isFieldValue(state.testForm.myField)).toBe(false);
+    expect(isFieldValue(state.testForm.myField[0])).toBe(true);
+    expect(isFieldValue(state.testForm.myField[1])).toBe(true);
+    expect(isFieldValue(state.testForm.myField[2])).toBe(true);
+
   });
 
   it('should reset values on reset on with previous state', () => {
@@ -2785,6 +2968,7 @@ describe('reducer.normalize', () => {
         }
       });
   });
+
   it('should normalize keyed forms depending on action form key', () => {
     const defaultFields = {
       _active: undefined,
@@ -2792,7 +2976,7 @@ describe('reducer.normalize', () => {
       [globalErrorKey]: undefined,
       _initialized: false,
       _submitting: false,
-      _submitFailed: false,
+      _submitFailed: false
     };
     const normalize = reducer.normalize({
       foo: {
@@ -2839,6 +3023,41 @@ describe('reducer.normalize', () => {
           myField: {
             value: 'normalized'
           }
+        }
+      });
+  });
+
+  it('should normalize simple form values', () => {
+    const defaultFields = {
+      _active: undefined,
+      _asyncValidating: false,
+      [globalErrorKey]: undefined,
+      _initialized: false,
+      _submitting: false,
+      _submitFailed: false
+    };
+    const normalize = reducer.normalize({
+      foo: {
+        name: () => 'normalized'
+      }
+    });
+    const state = normalize({
+      foo: {
+        name: {
+          value: 'dog'
+        }
+      }
+    });
+    expect(state)
+      .toExist()
+      .toBeA('object');
+    expect(state.foo)
+      .toExist()
+      .toBeA('object')
+      .toEqual({
+        ...defaultFields,
+        name: {
+          value: 'normalized'
         }
       });
   });

@@ -1,5 +1,5 @@
-/* eslint react/no-multi-comp:0*/
-import expect from 'expect';
+/* eslint react/no-multi-comp:0 */
+import expect, {createSpy} from 'expect';
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import ReactDOM from 'react-dom';
@@ -8,6 +8,12 @@ import {combineReducers, createStore} from 'redux';
 import {Provider} from 'react-redux';
 import reducer from '../reducer';
 import createReduxForm from '../createReduxForm';
+
+const createRestorableSpy = (fn) => {
+  return createSpy(fn, function restore() {
+    this.calls = [];
+  });
+};
 
 describe('createReduxForm', () => {
   const reduxForm = createReduxForm(false, React, connect);
@@ -1228,6 +1234,116 @@ describe('createReduxForm', () => {
       });
   });
 
+  // Test to demonstrate bug: https://github.com/erikras/redux-form/issues/468
+  //it('should add array values with DEEP defaults', () => {
+  //  const store = makeStore();
+  //  const form = 'testForm';
+  //  const Decorated = reduxForm({
+  //    form,
+  //    fields: [
+  //      'proposals[].arrival',
+  //      'proposals[].departure',
+  //      'proposals[].note',
+  //      'proposals[].rooms[].name',
+  //      'proposals[].rooms[].adults',
+  //      'proposals[].rooms[].children'
+  //    ]
+  //  })(Form);
+  //  const dom = TestUtils.renderIntoDocument(
+  //    <Provider store={store}>
+  //      <Decorated/>
+  //    </Provider>
+  //  );
+  //  const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+  //
+  //  expect(stub.props.fields.proposals).toBeA('array');
+  //  expect(stub.props.fields.proposals.length).toBe(0);
+  //  expect(stub.props.fields.proposals.addField).toBeA('function');
+  //
+  //  // add field
+  //  const today = new Date();
+  //  stub.props.fields.proposals.addField({
+  //    arrival: today,
+  //    departure: today,
+  //    note: '',
+  //    rooms: [{
+  //      name: 'Room 1',
+  //      adults: 2,
+  //      children: 0
+  //    }]
+  //  });
+  //
+  //  // check field
+  //  expect(stub.props.fields.proposals.length).toBe(1);
+  //  expect(stub.props.fields.proposals[0]).toBeA('object');
+  //  expectField({
+  //    field: stub.props.fields.proposals[0].arrival,
+  //    name: 'proposals[0].arrival',
+  //    value: today,
+  //    initial: today,
+  //    valid: true,
+  //    dirty: false,
+  //    error: undefined,
+  //    touched: false,
+  //    visited: false
+  //  });
+  //  expectField({
+  //    field: stub.props.fields.proposals[0].departure,
+  //    name: 'proposals[0].departure',
+  //    value: today,
+  //    initial: today,
+  //    valid: true,
+  //    dirty: false,
+  //    error: undefined,
+  //    touched: false,
+  //    visited: false
+  //  });
+  //  expectField({
+  //    field: stub.props.fields.proposals[0].note,
+  //    name: 'proposals[0].note',
+  //    value: '',
+  //    initial: '',
+  //    valid: true,
+  //    dirty: false,
+  //    error: undefined,
+  //    touched: false,
+  //    visited: false
+  //  });
+  //  expectField({
+  //    field: stub.props.fields.proposals[0].rooms[0].name,
+  //    name: 'proposals[0].rooms[0].name',
+  //    value: 'Room 1',
+  //    initial: 'Room 1',
+  //    valid: true,
+  //    dirty: false,
+  //    error: undefined,
+  //    touched: false,
+  //    visited: false
+  //  });
+  //  expectField({
+  //    field: stub.props.fields.proposals[0].rooms[0].adults,
+  //    name: 'proposals[0].rooms[0].adults',
+  //    value: 2,
+  //    initial: 2,
+  //    valid: true,
+  //    dirty: false,
+  //    error: undefined,
+  //    touched: false,
+  //    visited: false
+  //  });
+  //  expectField({
+  //    field: stub.props.fields.proposals[0].rooms[0].children,
+  //    name: 'proposals[0].rooms[0].children',
+  //    value: 0,
+  //    initial: 0,
+  //    valid: true,
+  //    dirty: false,
+  //    error: undefined,
+  //    touched: false,
+  //    visited: false
+  //  });
+  //});
+
   it('should initialize an array field, blowing away existing value', () => {
     const store = makeStore();
     const form = 'testForm';
@@ -1587,4 +1703,190 @@ describe('createReduxForm', () => {
         });
       });
   });
+
+  it('should only mutate the field that changed', () => {
+    const store = makeStore();
+    const form = 'testForm';
+    const Decorated = reduxForm({
+      form,
+      fields: ['larry', 'moe', 'curly']
+    })(Form);
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Decorated/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+
+    const larry = stub.props.fields.larry;
+    const moe = stub.props.fields.moe;
+    const curly = stub.props.fields.curly;
+
+    moe.onChange('BONK!');
+
+    expect(stub.props.fields.larry).toBe(larry);
+    expect(stub.props.fields.moe).toNotBe(moe);
+    expect(stub.props.fields.curly).toBe(curly);
+  });
+
+  it('should only rerender the form that changed', () => {
+    const store = makeStore();
+    const fooRender = createRestorableSpy().andReturn(<div/>);
+    const barRender = createRestorableSpy().andReturn(<div/>);
+
+    class FooForm extends Component {
+      render() {
+        return fooRender();
+      }
+    }
+
+    class BarForm extends Component {
+      render() {
+        return barRender();
+      }
+    }
+
+    const DecoratedFooForm = reduxForm({
+      form: 'foo',
+      fields: ['name']
+    })(FooForm);
+    const DecoratedBarForm = reduxForm({
+      form: 'bar',
+      fields: ['name']
+    })(BarForm);
+
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <div>
+          <DecoratedFooForm/>
+          <DecoratedBarForm/>
+        </div>
+      </Provider>
+    );
+    const fooStub = TestUtils.findRenderedComponentWithType(dom, FooForm);
+
+    // first render
+    expect(fooRender).toHaveBeenCalled();
+    expect(barRender).toHaveBeenCalled();
+
+    // restore spies
+    fooRender.restore();
+    barRender.restore();
+
+    // change field on foo
+    fooStub.props.fields.name.onChange('Tom');
+
+    // second render: only foo form
+    expect(fooRender).toHaveBeenCalled();
+    expect(barRender).toNotHaveBeenCalled();
+  });
+
+  it('should only rerender the field components that change', () => {
+    const store = makeStore();
+    let fooRenders = 0;
+    let barRenders = 0;
+
+    class FooInput extends Component {
+      shouldComponentUpdate(nextProps) {
+        return this.props.field !== nextProps.field;
+      }
+
+      render() {
+        fooRenders++;
+        const {field} = this.props;
+        return <input type="text" {...field}/>;
+      }
+    }
+    FooInput.propTypes = {
+      field: PropTypes.object.isRequired
+    };
+
+    class BarInput extends Component {
+      shouldComponentUpdate(nextProps) {
+        return this.props.field !== nextProps.field;
+      }
+
+      render() {
+        barRenders++;
+        const {field} = this.props;
+        return <input type="password" {...field}/>;
+      }
+    }
+    BarInput.propTypes = {
+      field: PropTypes.object.isRequired
+    };
+
+    class FieldTestForm extends Component {
+      render() {
+        const {fields: {foo, bar}} = this.props;
+        return (<div>
+          <FooInput field={foo}/>
+          <BarInput field={bar}/>
+        </div>);
+      }
+    }
+    FieldTestForm.propTypes = {
+      fields: PropTypes.object.isRequired
+    };
+
+    const DecoratedForm = reduxForm({
+      form: 'fieldTest',
+      fields: ['foo', 'bar']
+    })(FieldTestForm);
+
+    const dom = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <DecoratedForm/>
+      </Provider>
+    );
+    const stub = TestUtils.findRenderedComponentWithType(dom, FieldTestForm);
+
+    // first render
+    expect(fooRenders).toBe(1);
+    expect(barRenders).toBe(1);
+
+    // change field foo
+    stub.props.fields.foo.onChange('Tom');
+
+    // second render, only foo should rerender
+    expect(fooRenders).toBe(2);
+    expect(barRenders).toBe(1);
+
+    // change field bar
+    stub.props.fields.bar.onChange('Jerry');
+
+    // third render, only bar should rerender
+    expect(fooRenders).toBe(2);
+    expect(barRenders).toBe(2);
+  });
+
+  // Test to show bug https://github.com/erikras/redux-form/issues/550
+  // ---
+  // It's caused by the fact that we're no longer using the same field instance
+  // throughout the lifetime of the component. Since the fields are immutable now,
+  // the field.value given to createOnDragStart() no longer refers to the current
+  // value.
+  // ---
+  //it('should drag the current value', () => {
+  //  const store = makeStore();
+  //  const form = 'testForm';
+  //  const Decorated = reduxForm({
+  //    form,
+  //    fields: ['name']
+  //  })(Form);
+  //  const dom = TestUtils.renderIntoDocument(
+  //    <Provider store={store}>
+  //      <Decorated/>
+  //    </Provider>
+  //  );
+  //  const stub = TestUtils.findRenderedComponentWithType(dom, Form);
+  //
+  //  stub.props.fields.name.onChange('FOO');
+  //  const setData = createSpy();
+  //  stub.props.fields.name.onDragStart({dataTransfer: {setData}});
+  //
+  //  expect(setData)
+  //    .toHaveBeenCalled()
+  //    .toHaveBeenCalledWith('value', 'FOO');
+  //});
 });
