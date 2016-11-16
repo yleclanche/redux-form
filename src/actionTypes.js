@@ -4,6 +4,7 @@ export const CHANGE = 'redux-form/CHANGE';
 export const DESTROY = 'redux-form/DESTROY';
 export const FOCUS = 'redux-form/FOCUS';
 export const INITIALIZE = 'redux-form/INITIALIZE';
+export const SET_INITIALS_VALUES = 'redux-form/SET_INITIALS_VALUES';
 export const REMOVE_ARRAY_VALUE = 'redux-form/REMOVE_ARRAY_VALUE';
 export const RESET = 'redux-form/RESET';
 export const START_ASYNC_VALIDATION = 'redux-form/START_ASYNC_VALIDATION';

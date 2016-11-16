@@ -1,4 +1,4 @@
-import { ADD_ARRAY_VALUE, BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, REMOVE_ARRAY_VALUE, RESET, START_ASYNC_VALIDATION,
+import { ADD_ARRAY_VALUE, BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, SET_INITIALS_VALUES, REMOVE_ARRAY_VALUE, RESET, START_ASYNC_VALIDATION,
   START_SUBMIT, STOP_ASYNC_VALIDATION, STOP_SUBMIT, SUBMIT_FAILED, SWAP_ARRAY_VALUES, TOUCH, UNTOUCH } from './actionTypes';
 import mapValues from './mapValues';
 import read from './read';
@@ -74,6 +74,13 @@ const behaviors = {
       _initialized: true,
       _submitting: false,
       _submitFailed: false
+    };
+  },
+  [SET_INITIALS_VALUES](state, {data, fields}) {
+    return {
+      ...state,
+      ...fields.reduce((accumulator, field) =>
+        write(field, value => makeFieldValue({...value, initial: value !== undefined ? value.value : value}), accumulator), state)
     };
   },
   [REMOVE_ARRAY_VALUE](state, {path, index}) {

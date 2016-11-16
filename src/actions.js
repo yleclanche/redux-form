@@ -1,4 +1,4 @@
-import { ADD_ARRAY_VALUE, BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, REMOVE_ARRAY_VALUE, RESET, START_ASYNC_VALIDATION,
+import { ADD_ARRAY_VALUE, BLUR, CHANGE, DESTROY, FOCUS, INITIALIZE, SET_INITIALS_VALUES, REMOVE_ARRAY_VALUE, RESET, START_ASYNC_VALIDATION,
   START_SUBMIT, STOP_ASYNC_VALIDATION, STOP_SUBMIT, SUBMIT_FAILED, SWAP_ARRAY_VALUES, TOUCH, UNTOUCH } from './actionTypes';
 
 export const addArrayValue = (path, value, index) =>
@@ -21,6 +21,13 @@ export const initialize = (data, fields) => {
     throw new Error('must provide fields array to initialize() action creator');
   }
   return {type: INITIALIZE, data, fields};
+};
+
+export const setInitialsValues = (data, fields) => {
+  if (!Array.isArray(fields)) {
+    throw new Error('must provide fields array to initialize() action creator');
+  }
+  return {type: SET_INITIALS_VALUES, data, fields};
 };
 
 export const removeArrayValue = (path, index) =>

@@ -13,6 +13,7 @@ const setErrors = (state, errors, destKey) => {
 
     if (state && typeof state === 'object') {
       const oldPrototype = Object.getPrototypeOf(state);
+
       const result = Object.keys(state)
         .reduce((accumulator, key) =>
             isMetaKey(key) ? accumulator : {
@@ -20,7 +21,8 @@ const setErrors = (state, errors, destKey) => {
               [key]: setErrors(state[key], errors && errors[key], destKey)
             },
           state);
-      result.__proto__ = oldPrototype;
+      //result.__proto__ = oldPrototype;
+      Object.setPrototypeOf(result, oldPrototype);
       if (isFieldValue(state)) {
         makeFieldValue(result);
       }

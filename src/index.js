@@ -15,6 +15,7 @@ export const {
   removeArrayValue,
   getValues,
   initialize,
+  setInitialsValues,
   initializeWithKey,
   propTypes,
   reset,

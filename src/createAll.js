@@ -27,6 +27,7 @@ const changeWithKey = boundActions.changeWithKey;
 const destroy = boundActions.destroy;
 const focus = boundActions.focus;
 const initialize = boundActions.initialize;
+const setInitialsValues = boundActions.setInitialsValues;
 const initializeWithKey = boundActions.initializeWithKey;
 const removeArrayValue = boundActions.removeArrayValue;
 const reset = boundActions.reset;
@@ -52,6 +53,7 @@ export default function createAll(isReactNative, React, connect) {
     focus,
     getValues,
     initialize,
+    setInitialsValues,
     initializeWithKey,
     propTypes: createPropTypes(React),
     reduxForm: createReduxForm(isReactNative, React, connect),

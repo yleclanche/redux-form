@@ -2,7 +2,7 @@ import isPromise from 'is-promise';
 import isValid from './isValid';
 
 const handleSubmit = (submit, values, props, asyncValidate) => {
-  const handleErrors = require('helpers/forms').handleErrors;
+  const handleErrors = require('../../helpers/forms').handleErrors;
   const {dispatch, fields, startSubmit, stopSubmit, submitFailed, returnRejectedSubmitPromise, touch, validate} = props;
   const syncErrors = validate(values, props);
   touch(...fields); // touch all fields
